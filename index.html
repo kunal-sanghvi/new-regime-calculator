@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Regime Calculator</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --primary-dark: #1d4ed8;
+            --success-color: #059669;
+            --warning-color: #d97706;
+            --danger-color: #dc2626;
+            --gradient-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        body {
+            background: var(--gradient-bg);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .main-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            margin: 2rem auto;
+            max-width: 1200px;
+        }
+
+        .header-section {
+            background: var(--gradient-bg);
+            color: white;
+            padding: 2rem;
+            border-radius: 20px 20px 0 0;
+            text-align: center;
+        }
+
+        .form-section {
+            padding: 2rem;
+        }
+
+        .form-control,
+        .form-range {
+            border-radius: 10px;
+            border: 2px solid #e5e7eb;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus,
+        .form-range:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.25);
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            border: none;
+            border-radius: 10px;
+            padding: 12px 30px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+        }
+
+        .slider-container {
+            margin: 1rem 0;
+        }
+
+        .slider-value {
+            background: var(--primary-color);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        .results-section {
+            margin-top: 2rem;
+            padding: 0 2rem 2rem;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+
+        .table {
+            margin: 0;
+        }
+
+        .table th {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            font-weight: 600;
+            padding: 1rem;
+        }
+
+        .table td {
+            padding: 0.75rem 1rem;
+            border-color: #f3f4f6;
+        }
+
+        .table-striped tbody tr:nth-of-type(odd) {
+            background-color: rgba(37, 99, 235, 0.05);
+        }
+
+        .total-row {
+            background: var(--success-color) !important;
+            color: white;
+            font-weight: 600;
+        }
+
+        .currency {
+            color: var(--success-color);
+            font-weight: 600;
+        }
+
+        .percentage {
+            color: var(--warning-color);
+            font-weight: 600;
+        }
+
+        .input-group-text {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 10px 0 0 10px;
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                margin: 1rem;
+                border-radius: 15px;
+            }
+
+            .form-section {
+                padding: 1.5rem;
+            }
+
+            .header-section {
+                padding: 1.5rem;
+                border-radius: 15px 15px 0 0;
+            }
+
+            .table-responsive {
+                font-size: 0.9rem;
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container-fluid">
+        <div class="main-container">
+            <div class="header-section">
+                <h1 class="display-4 mb-0">
+                    <i class="fas fa-calculator me-3"></i>
+                    New Regime Calculator
+                </h1>
+                <p class="lead mb-0 mt-2">Calculate your tax liability under the new tax regime</p>
+            </div>
+
+            <div class="form-section">
+                <form id="taxForm">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="ppfDeduction" class="form-label fw-bold">
+                                <i class="fas fa-piggy-bank me-2"></i>PPF Deduction (₹)
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text">₹</span>
+                                <input type="number" class="form-control" id="ppfDeduction" value="0" min="0"
+                                    max="150000">
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="foodCoupon" class="form-label fw-bold">
+                                <i class="fas fa-utensils me-2"></i>Food Coupon Deduction (₹)
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text">₹</span>
+                                <input type="number" class="form-control" id="foodCoupon" value="0" min="0" max="50000">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="baseSalary" class="form-label fw-bold">
+                            <i class="fas fa-money-bill-wave me-2"></i>Base Salary (₹)
+                        </label>
+                        <div class="slider-container">
+                            <input type="range" class="form-range" id="baseSalary" min="100000" max="10000000"
+                                value="600000" step="10000">
+                            <div class="text-center">
+                                <span class="slider-value" id="salaryValue">₹6,00,000</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-chart-line me-2"></i>Calculate Tax
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="results-section" id="results" style="display: none;">
+                <div class="row justify-content-center">
+                    <div class="col-lg-10">
+                        <div class="table-container">
+                            <h4 class="p-3 mb-0 bg-primary text-white">
+                                <i class="fas fa-chart-line me-2"></i>Tax Calculation & Income Summary
+                            </h4>
+                            <div class="table-responsive">
+                                <table class="table table-striped mb-0" id="resultsTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Description</th>
+                                            <th>Tax Rate</th>
+                                            <th>Amount</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="resultsBody">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Format currency
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-IN', {
+                style: 'currency',
+                currency: 'INR',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(amount);
+        }
+
+        // Format number with commas
+        function formatNumber(num) {
+            return new Intl.NumberFormat('en-IN').format(num);
+        }
+
+        // Update slider value display
+        const baseSalarySlider = document.getElementById('baseSalary');
+        const salaryValueDisplay = document.getElementById('salaryValue');
+
+        baseSalarySlider.addEventListener('input', function () {
+            salaryValueDisplay.textContent = formatCurrency(this.value);
+        });
+
+        // Tax calculation logic
+        function calculateTax(grossIncome) {
+            const slabs = [
+                { min: 0, max: 400000, rate: 0 },
+                { min: 400000, max: 800000, rate: 0.05 },
+                { min: 800000, max: 1200000, rate: 0.10 },
+                { min: 1200000, max: 1600000, rate: 0.15 },
+                { min: 1600000, max: 2000000, rate: 0.20 },
+                { min: 2000000, max: 2400000, rate: 0.25 },
+                { min: 2400000, max: Infinity, rate: 0.30 }
+            ];
+
+            let totalTax = 0;
+            let taxBreakdown = [];
+
+            for (let slab of slabs) {
+                if (grossIncome > slab.min) {
+                    const taxableIncome = Math.min(grossIncome, slab.max) - slab.min;
+                    const slabTax = taxableIncome * slab.rate;
+                    totalTax += slabTax;
+
+                    let slabName;
+                    if (slab.max === Infinity) {
+                        slabName = `₹${formatNumber(slab.min / 100000)}L+`;
+                    } else {
+                        slabName = `₹${formatNumber(slab.min / 100000)}L - ₹${formatNumber(slab.max / 100000)}L`;
+                    }
+
+                    taxBreakdown.push({
+                        slab: slabName,
+                        rate: `${(slab.rate * 100)}%`,
+                        tax: slabTax
+                    });
+                }
+            }
+
+            return { totalTax, taxBreakdown };
+        }
+
+        // Main form submission handler
+        document.getElementById('taxForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const baseIncome = parseInt(document.getElementById('baseSalary').value);
+            const ppfDeduction = parseInt(document.getElementById('ppfDeduction').value) || 0;
+            const foodCoupon = parseInt(document.getElementById('foodCoupon').value) || 0;
+
+            // Calculate gross income
+            const grossIncome = baseIncome - 75000;
+
+            let allSlabTax = 0;
+            let totalTax = 0;
+            let taxBreakdown = [];
+
+            const taxCalc = calculateTax(grossIncome);
+            allSlabTax = taxCalc.totalTax;
+            taxBreakdown = taxCalc.taxBreakdown;
+
+            let rebateEligible = grossIncome < 1200000;
+            let rebateAmount = rebateEligible ? allSlabTax : 0;
+            let marginalRelief = rebateEligible || (grossIncome - 1200000) > allSlabTax ? 0 : allSlabTax - grossIncome + 1200000
+
+            let surchargeApplicable = grossIncome > 5000000;
+            let surchargeEarning = surchargeApplicable ? grossIncome - 5000000 : 0;
+            let surchargeAmount = surchargeApplicable ? 0.1 * allSlabTax : 0;
+
+            let surchargeRelief = surchargeApplicable && surchargeEarning < surchargeAmount ? surchargeAmount - grossIncome + 5000000 : 0;
+
+            let taxWithoutCess = allSlabTax - rebateAmount - marginalRelief + surchargeAmount - surchargeRelief;
+            let healthEduCess = 0.04 * taxWithoutCess;
+            totalTax = taxWithoutCess + healthEduCess;
+
+            // Calculate final amounts
+            const inHandYearly = baseIncome - totalTax;
+            const inHandMonthly = inHandYearly / 12;
+            const monthlyDeductions = (ppfDeduction + foodCoupon);
+            const inBankMonthly = inHandMonthly - monthlyDeductions;
+            const effectiveRate = (totalTax / baseIncome) * 100;
+
+            // Display merged results table
+            const resultsBody = document.getElementById('resultsBody');
+            resultsBody.innerHTML = '';
+
+            // Add income summary first
+            const incomeRows = [
+                { desc: 'Total Income', rate: '-', amount: baseIncome },
+                { desc: 'Gross Income (after ₹75k deduction)', rate: '-', amount: grossIncome }
+            ];
+
+            incomeRows.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>${item.desc}</strong></td>
+                    <td class="text-center">${item.rate}</td>
+                    <td><span class="currency">${formatCurrency(item.amount)}</span></td>
+                `;
+                resultsBody.appendChild(row);
+            });
+
+            if (totalTax === 0) {
+                const warnRow = document.createElement('tr');
+                warnRow.innerHTML = '<tr><td colspan="3" class="text-center text-muted"><em>No tax liability (Gross Income < ₹12L)</em></td></tr>';
+                resultsBody.appendChild(warnRow);
+            } else if (marginalRelief > 0) {
+                const warnRow = document.createElement('tr');
+                warnRow.innerHTML = '<tr><td colspan="3" class="text-center text-muted"><em>Extra income earned over 12.75LPA is all going to tax</em></td></tr>';
+                resultsBody.appendChild(warnRow);
+            } else if (surchargeRelief > 0) {
+                const warnRow = document.createElement('tr');
+                warnRow.innerHTML = '<tr><td colspan="3" class="text-center text-muted"><em>Extra income earned over 50.75LPA is all going to tax</em></td></tr>';
+                resultsBody.appendChild(warnRow);
+            }
+
+
+            const separatorRow = document.createElement('tr');
+            separatorRow.innerHTML = '<td colspan="3" class="text-center bg-light"><strong>Tax Breakdown</strong></td>';
+            resultsBody.appendChild(separatorRow);
+
+            taxBreakdown.forEach(item => {
+                if (item.tax > 0) {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                            <td>${item.slab}</td>
+                            <td class="text-center"><span class="percentage">${item.rate}</span></td>
+                            <td><span class="currency">${formatCurrency(item.tax)}</span></td>
+                        `;
+                    resultsBody.appendChild(row);
+                }
+            });
+
+            if (rebateEligible) {
+                const rebateRow = document.createElement('tr');
+                rebateRow.innerHTML = `
+                        <td>Rebate (Gross Income < ₹12L)</td>
+                        <td class="text-center">-</td>
+                        <td><span class="currency">${formatCurrency(rebateAmount)}</span></td>
+                    `;
+                resultsBody.appendChild(rebateRow);
+            }
+
+            if (marginalRelief > 0) {
+                const rebateRow = document.createElement('tr');
+                rebateRow.innerHTML = `
+                        <td>Marginal Relief</td>
+                        <td class="text-center">-</td>
+                        <td><span class="currency">${formatCurrency(marginalRelief)}</span></td>
+                    `;
+                resultsBody.appendChild(rebateRow);
+            }
+
+            if (surchargeApplicable) {
+                const surchargeRow = document.createElement('tr');
+                surchargeRow.innerHTML = `
+                        <td>Surcharge (Income > ₹50L)</td>
+                        <td class="text-center"><span class="percentage">10%</span></td>
+                        <td><span class="currency">${formatCurrency(surchargeAmount - surchargeRelief)}</span></td>
+                    `;
+                resultsBody.appendChild(surchargeRow);
+            }
+
+
+            const taxWithoutCessRow = document.createElement('tr');
+            taxWithoutCessRow.className = 'total-row';
+            taxWithoutCessRow.innerHTML = `
+                    <td><strong>Tax Before Cess</strong></td>
+                    <td class="text-center"><strong>-</strong></td>
+                    <td><strong>₹${formatNumber(taxWithoutCess)}</strong></td>
+                `;
+            resultsBody.appendChild(taxWithoutCessRow);
+
+            const healthEduCessRow = document.createElement('tr');
+            healthEduCessRow.className = 'total-row';
+            healthEduCessRow.innerHTML = `
+                    <td><strong>Health Edu Cess</strong></td>
+                    <td class="text-center"><strong>4%</strong></td>
+                    <td><strong>₹${formatNumber(healthEduCess)}</strong></td>
+                `;
+            resultsBody.appendChild(healthEduCessRow);
+
+            const totalTaxRow = document.createElement('tr');
+            totalTaxRow.className = 'total-row';
+            totalTaxRow.innerHTML = `
+                    <td><strong>Total Tax Paid</strong></td>
+                    <td class="text-center"><strong>${effectiveRate.toFixed(2)}%</strong></td>
+                    <td><strong>₹${formatNumber(totalTax)}</strong></td>
+                `;
+            resultsBody.appendChild(totalTaxRow);
+
+            // Add final summary
+            const finalSeparatorRow = document.createElement('tr');
+            finalSeparatorRow.innerHTML = '<td colspan="3" class="text-center bg-light"><strong>Final Summary</strong></td>';
+            resultsBody.appendChild(finalSeparatorRow);
+
+            const finalRows = [
+                { desc: 'In-hand Yearly', rate: '-', amount: inHandYearly },
+                { desc: 'In-hand Monthly', rate: '-', amount: inHandMonthly },
+                { desc: 'PPF + Food Coupons (Monthly)', rate: '-', amount: monthlyDeductions }
+            ];
+
+            finalRows.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>${item.desc}</strong></td>
+                    <td class="text-center">${item.rate}</td>
+                    <td><span class="currency">${formatCurrency(item.amount)}</span></td>
+                `;
+                resultsBody.appendChild(row);
+            });
+
+            const finalRow = document.createElement('tr');
+            finalRow.className = 'total-row';
+            finalRow.innerHTML = `
+                <td><strong>In Bank Monthly</strong></td>
+                <td class="text-center"><strong>-</strong></td>
+                <td><strong>₹${formatNumber(inBankMonthly)}</strong></td>
+            `;
+            resultsBody.appendChild(finalRow);
+
+            // Show results with animation
+            const resultsSection = document.getElementById('results');
+            resultsSection.style.display = 'block';
+            resultsSection.classList.add('fade-in');
+
+            // Scroll to results
+            resultsSection.scrollIntoView({ behavior: 'smooth' });
+        });
+    </script>
+</body>
+
+</html>
